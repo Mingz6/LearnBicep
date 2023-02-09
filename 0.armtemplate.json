@@ -15,7 +15,7 @@
 
 // 1. az login
 // 2. az account set --subscription <****-***-***-****>
-// 3. az deployment group create --resource-group <development-ming> --template-file armtemplate.json
+// 3. az deployment group create --resource-group <AZGroupName> --template-file 0.armtemplate.json
 // 4. The different between ARMTemplate and Bicep is:
 // Bicep is a new language for defining Azure resources
 // It was created to address some of the challenges of using ARM templates, such as the verbose syntax and difficulties in managing complex templates.
