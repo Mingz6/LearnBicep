@@ -19,3 +19,6 @@ resource azbicepas 'Microsoft.web/sites@2018-11-01'= {
 }
 
 // az deployment group create -g <development-ming> -f 2.1AppServicePlan.bicep
+
+// Preview before deploy using what if command
+// az deployment group create -g <development-ming> -f 2.1AppServicePlan.bicep --confirm-with-what-if
