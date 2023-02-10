@@ -18,7 +18,17 @@ resource azbicepas 'Microsoft.web/sites@2018-11-01'= {
   ]
 }
 
+resource azbicepappinsights 'microsoft.Insights/components@2020-02-02-preview'= {
+  name: 'azbicep-dev-eus-wapp1-ai'
+  location: resourceGroup( ).location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+}
+
+
 // az deployment group create -g <development-ming> -f 2.1AppServicePlan.bicep
 
 // Preview before deploy using what if command
-// az deployment group create -g <development-ming> -f 2.1AppServicePlan.bicep --confirm-with-what-if
+// az deployment group create -g <development-ming> -f .\AzureWorld\2.1AppServicePlan.bicep --confirm-with-what-if
