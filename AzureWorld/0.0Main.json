@@ -1,0 +1,247 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.14.6.61914",
+      "templateHash": "16356233288728755543"
+    }
+  },
+  "parameters": {
+    "pAppServicePlan": {
+      "type": "string",
+      "defaultValue": "azbicep-dev-eus-asp1"
+    },
+    "pAppService": {
+      "type": "string",
+      "defaultValue": "azbicep-dev-eus-wapp1"
+    },
+    "pAppInsights": {
+      "type": "string",
+      "defaultValue": "azbicep-dev-eus-wapp1-ai"
+    },
+    "pSQLServer": {
+      "type": "string",
+      "defaultValue": "azbicep-dev-eus-sqlserver"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "AppServicePlan",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pAppServicePlan": {
+            "value": "[parameters('pAppServicePlan')]"
+          },
+          "pAppService": {
+            "value": "[parameters('pAppService')]"
+          },
+          "pInstrumentationKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'AppInsights'), '2020-10-01').outputs.oInstrumentationKey.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.14.6.61914",
+              "templateHash": "11446351668970814443"
+            }
+          },
+          "parameters": {
+            "pAppServicePlan": {
+              "type": "string"
+            },
+            "pAppService": {
+              "type": "string"
+            },
+            "pInstrumentationKey": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2020-12-01",
+              "name": "[parameters('pAppServicePlan')]",
+              "location": "[resourceGroup().location]",
+              "sku": {
+                "name": "S1",
+                "capacity": 1
+              }
+            },
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2018-11-01",
+              "name": "[parameters('pAppService')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "serverFarmId": "[resourceId('Microsoft.web/serverfarms', 'azbicep-dev-eus-asp1')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('pAppServicePlan'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2018-11-01",
+              "name": "[format('{0}/{1}', parameters('pAppService'), 'web')]",
+              "properties": {
+                "appSettings": [
+                  {
+                    "name": "key1",
+                    "value": "value1"
+                  },
+                  {
+                    "name": "key2",
+                    "value": "value2"
+                  },
+                  {
+                    "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                    "value": "[parameters('pInstrumentationKey')]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('pAppService'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'AppInsights')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "SQLDatabase",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pSQLServer": {
+            "value": "[parameters('pSQLServer')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.14.6.61914",
+              "templateHash": "3648231737155996751"
+            }
+          },
+          "parameters": {
+            "pSQLServer": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers",
+              "apiVersion": "2014-04-01",
+              "name": "azbicep-dev-eus-sqlserver-minglearn",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "administratorLogin": "adminuser",
+                "administratorLoginPassword": "adminPassword123"
+              }
+            },
+            {
+              "type": "Microsoft.Sql/servers/databases",
+              "apiVersion": "2014-04-01",
+              "name": "[format('{0}/{1}', 'azbicep-dev-eus-sqlserver-minglearn', 'mingzdb')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "edition": "Basic",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "Basic"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', 'azbicep-dev-eus-sqlserver-minglearn')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Sql/servers/firewallRules",
+              "apiVersion": "2021-02-01-preview",
+              "name": "[format('{0}/{1}', 'azbicep-dev-eus-sqlserver-minglearn', 'Ming IP address')]",
+              "properties": {
+                "startIpAddress": "1.1.1.1",
+                "endIpAddress": "1.1.1.1"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', 'azbicep-dev-eus-sqlserver-minglearn')]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "AppInsights",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pAppInsights": {
+            "value": "[parameters('pAppInsights')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.14.6.61914",
+              "templateHash": "8470279930606817279"
+            }
+          },
+          "parameters": {
+            "pAppInsights": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/components",
+              "apiVersion": "2020-02-02-preview",
+              "name": "[parameters('pAppInsights')]",
+              "location": "[resourceGroup().location]",
+              "kind": "web",
+              "properties": {
+                "Application_Type": "web"
+              }
+            }
+          ],
+          "outputs": {
+            "oInstrumentationKey": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Insights/components', parameters('pAppInsights')), '2020-02-02-preview').InstrumentationKey]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

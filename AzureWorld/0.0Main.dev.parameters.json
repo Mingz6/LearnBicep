@@ -1,0 +1,18 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "pAppServicePlan": {
+            "value": "azbicep-dev-eus-asp1"
+        },
+        "pAppService": {
+            "value": "azbicep-dev-eus-wapp1"
+        },
+        "pAppInsights": {
+            "value": "azbicep-dev-eus-wapp1-ai"
+        },
+        "pSQLServer": {
+            "value": "azbicep-dev-eus-sqlserver"
+        }
+    }
+}
