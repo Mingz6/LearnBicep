@@ -8,6 +8,19 @@
 param pAppServicePlan string
 param pAppService string
 param pInstrumentationKey string
+param pEvn string
+
+@description('''
+  Please select the SKU name for the App Service Plan.
+  The allowed values are:
+  F1, B1, B2, B3, D1, D2, D3, S1, S2, S3, P1V2, P2V2, P3V2, P1V3, P2V3, P3V3
+  ''')
+@allowed(['F1', 'B1', 'B2', 'B3', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3', 'P1V2', 'P2V2', 'P3V2', 'P1V3', 'P2V3', 'P3V3'])
+param pSkuName string
+
+@minValue(1)
+@maxValue(30)
+param pSkuCapacity int
 
 // App service plan
 resource azbicepasp1 'Microsoft.web/serverfarms@2020-12-01'= {
@@ -16,9 +29,21 @@ resource azbicepasp1 'Microsoft.web/serverfarms@2020-12-01'= {
   name: pAppServicePlan
   location: resourceGroup().location
   sku: {
-    name: 'S1'
-    capacity: 1
+    name: pSkuName
+    capacity: pSkuCapacity
   }
+}
+
+resource WebAppSlot 'Microsoft.Web/sites/slots@2022-03-01' = if (pEvn == 'dev') {
+  name: 'azbicep-dev-eus-wapp1-staging-ming'
+  location: resourceGroup().location
+  parent: azbicepas
+  properties: {
+    serverFarmId: azbicepasp1.id
+  }
+  dependsOn: [
+    azbicepasp1
+  ]
 }
 
 // AZ Web app

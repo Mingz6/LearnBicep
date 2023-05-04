@@ -4,13 +4,25 @@
 // az deployment group create -g <development-ming> -f 3.0SqlServerAndDb.bicep
 
 param pSQLServer string
+param pSQLServerAdminLogin string
+@secure()
+param pSQLServerAdminPassword string
+
 
 resource sqlServer 'Microsoft.Sql/servers@2014-04-01' = {
   name: 'azbicep-dev-eus-sqlserver-minglearn'
   location: resourceGroup().location
   properties: {
-    administratorLogin: 'adminuser'
-    administratorLoginPassword: 'adminPassword123'
+    // This is not safe, but for demo purpose
+    // We should use key vault to store the password
+    // administratorLogin: 'adminuser'
+    // administratorLoginPassword: 'adminPassword123'
+
+    // The secure way to store the password
+    administratorLogin: pSQLServerAdminLogin
+    administratorLoginPassword: pSQLServerAdminPassword
+
+    // administratorLoginPassword: KeyVault.getSecret('sqlServerAdminPassword').value
   }
 }
 

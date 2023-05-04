@@ -12,11 +12,17 @@
 // Use this section with the ARM template parameters file
 // Use this command to deploy your main template
 // az deployment group create -g <YourGroup> -f 0.Main.bicep -p 0.main.<YourEnv>.parameters.json
+param Env string
 param pAppServicePlan string
 param pAppService string
 param pAppInsights string
 param pSQLServer string
 
+param pSKUName string = (Env == 'dev')? 'F1': 'S1'
+
+resource KeyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: 'azbicep-dev-eus-kv-minglearn'
+}
 
 module AppServicePlan '2.1AppServicePlan.bicep' = {
   name: 'AppServicePlan'
@@ -24,6 +30,9 @@ module AppServicePlan '2.1AppServicePlan.bicep' = {
     pAppServicePlan: pAppServicePlan
     pAppService: pAppService
     pInstrumentationKey: AppInsights.outputs.oInstrumentationKey
+    pSkuName: 'S1'
+    pSkuCapacity: 25
+    pEvn: Env
   }
 }
 
@@ -31,6 +40,8 @@ module SQLDatabase '3.0SqlServerAndDb.bicep' = {
   name: 'SQLDatabase'
   params:{
     pSQLServer: pSQLServer
+    pSQLServerAdminLogin: 'sqladmin'
+    pSQLServerAdminPassword: KeyVault.getSecret('sqladminpassword')
   }
 }
 
