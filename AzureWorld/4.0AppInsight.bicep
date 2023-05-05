@@ -14,3 +14,4 @@ resource azbicepappinsights 'Microsoft.Insights/components@2020-02-02-preview'= 
 
 // Output param for other resources.
 output oInstrumentationKey string = azbicepappinsights.properties.InstrumentationKey
+output oAppInsightsId string = azbicepappinsights.id
